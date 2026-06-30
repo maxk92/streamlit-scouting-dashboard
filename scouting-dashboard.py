@@ -57,7 +57,6 @@ _LEAGUE_ORDER = ["ENG-Premier League", "ESP-La Liga", "GER-Bundesliga", "ITA-Ser
                  "BEL-Pro League", "NED-Eredivisie", "POR-Liga Portugal", "SCO-Premiership", "TUR-Super Lig", "RUS-Premier League",
                  "BRA-Serie A", "USA-Major League Soccer"
                  'USA-Major League Soccer',
- 'BRA-Serie A',
                  "ENG-Championship", "ENG-League One", "GER-2 Bundesliga",
                  "EUR-Champions League", "EUR-Europa League"
                   ]
@@ -108,6 +107,7 @@ with st.sidebar:
        default="EUR-Champions League",
        )
 
+    st.header("Select Positions", divider=False)
     col1, col2 = st.columns(2)
     selected_positions = []
     for i, pos in enumerate(all_positions):
@@ -124,7 +124,7 @@ with st.sidebar:
     )
 
     minimum_marketval, maximum_marketval = st.slider(
-        "Market Value Range",
+        "Market Value Range [Mio. €]",
         min_value=0,
         max_value=int(df_players.reset_index()['market_value_mio_eur'].max()),
         value=(0, int(df_players.reset_index()['market_value_mio_eur'].max())),
