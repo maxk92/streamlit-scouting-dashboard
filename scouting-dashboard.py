@@ -69,6 +69,12 @@ all_positions = [p for p in _POSITION_ORDER if p in all_positions_raw]
 
 all_types = df_players.reset_index()['type_name'].unique().tolist()
 
+# ==================================
+# === Variable preprocessing =======
+# ==================================
+
+df_players['market_value_mio_eur'] = df_players['market_value_eur'] / 1_000_000
+df_player_matches['market_value_mio_eur'] = df_player_matches['market_value_eur'] / 1_000_000
 
 # ==================================
 # === Dashboard starts here ========
@@ -109,8 +115,20 @@ with st.sidebar:
         if col.checkbox(pos, value=True, key=f"cb_pos_{pos}"):
             selected_positions.append(pos)
 
-    minimum_minutes = st.slider(
-        "Minimum Minutes Played", min_value=0, max_value=int(df_players.reset_index()['minutes_played'].max()), value=0, step=10
+    minimum_minutes, maximum_minutes = st.slider(
+        "Minutes Played Range",
+        min_value=0,
+        max_value=int(df_players.reset_index()['minutes_played'].max()),
+        value=(0, int(df_players.reset_index()['minutes_played'].max())),
+        step=10,
+    )
+
+    minimum_marketval, maximum_marketval = st.slider(
+        "Market Value Range",
+        min_value=0,
+        max_value=int(df_players.reset_index()['market_value_mio_eur'].max()),
+        value=(0, int(df_players.reset_index()['market_value_mio_eur'].max())),
+        step=1
     )
 
     selected_type = st.multiselect(
@@ -129,12 +147,70 @@ with tab1:
         (df_players.reset_index()['league'].isin(selected_leagues)) &
         (df_players.reset_index()['main_position'].isin(selected_positions)) &
         (df_players.reset_index()['minutes_played'] >= minimum_minutes) &
+        (df_players.reset_index()['minutes_played'] <= maximum_minutes) &
+        (df_players.reset_index()['market_value_mio_eur'] >= minimum_marketval) & #| (df_players.reset_index()['market_value_mio_eur'].isna())) &
+        (df_players.reset_index()['market_value_mio_eur'] <= maximum_marketval) & #| (df_players.reset_index()['market_value_mio_eur'].isna())) &
         (df_players.reset_index()['type_name'].isin(selected_type))
-    ].copy()
+    ][
+        ['league', 'season', 'team', 'player_name', 'main_position', 'minutes_played', 'market_value_mio_eur', 'type_name', 'vaep_total', 'vaep90', 'off_total', 'def_total', 'off90', 'vaep_stability']
+        ].copy()
+
 
     st.dataframe(
-        df_filtered
-            )
+        df_filtered,
+        column_config={
+            "league": st.column_config.TextColumn(
+                "League",
+            ),
+            "season": st.column_config.TextColumn(
+                "Season",
+            ),
+            "team": st.column_config.TextColumn(
+                "Team",
+            ),
+            "player_name": st.column_config.TextColumn(
+                "Player",
+            ),
+            "main_position": st.column_config.TextColumn(
+                "Position",
+            ),
+            "minutes_played": st.column_config.NumberColumn(
+                "Minutes Played",
+                format="%d",
+            ),
+           "market_value_mio_eur": st.column_config.NumberColumn(
+                "Market Value (€m)",
+                format="%.1f",
+            ),
+            "type_name": st.column_config.TextColumn(
+                "Type",
+            ),
+            "vaep_total": st.column_config.NumberColumn(
+                "VAEP (Total)",
+                format="%.2f",
+            ),
+            "vaep90": st.column_config.NumberColumn(
+                "VAEP per 90",
+                format="%.2f",
+            ),
+            "off_total": st.column_config.NumberColumn(
+                "Offensive VAEP (Total)",
+                format="%.2f",
+            ),
+            "def_total": st.column_config.NumberColumn(
+                "Defensive VAEP (Total)",
+                format="%.2f",
+            ),
+            "off90": st.column_config.NumberColumn(
+                "Offensive VAEP per 90",
+                format="%.2f",
+            ),
+            "vaep_stability": st.column_config.NumberColumn(
+                "VAEP Stability",
+                format="%.2f",
+            ),
+        },
+     )
 
 with tab2:
 
