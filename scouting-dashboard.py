@@ -1,6 +1,3 @@
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parents[2]))
 import os
 import pandas as pd
 import numpy as np
@@ -8,7 +5,6 @@ import duckdb
 
 import matplotlib.pyplot as plt
 import seaborn as sns
-import matplotsoccer as mpl
 
 from analytics.constants import LEAGUE_NAME_DICT, POSITION_MAPPING, POSITION_MAPPING_SIDES
 from analytics.player_pipeline import build_player_game_df, build_player_season_df
